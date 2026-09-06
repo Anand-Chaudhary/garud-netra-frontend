@@ -51,6 +51,15 @@ const getHealthLabel = (health: number): string => {
   return 'Critical';
 };
 
+const getCylinderHealth = (
+  channels: HealthData['channels'],
+  sensor: 'cht' | 'egt',
+  cylinder: number
+): number => {
+  const channel = `${sensor}_${cylinder}` as keyof HealthData['channels'];
+  return channels[channel].health;
+};
+
 const LiveHealthView: React.FC = () => {
   const [sensorData, setSensorData] = useState<SensorReading | null>(null);
   const [healthData, setHealthData] = useState<HealthData | null>(null);
@@ -131,12 +140,11 @@ const LiveHealthView: React.FC = () => {
       <div className="bg-surface border border-border-subtle rounded-lg p-4 shadow-sm">
         <h2 className="text-lg font-semibold mb-4 flex items-center justify-between">
           Engine Overall Status
-          <span className="px-3 py-1 rounded-full text-sm font-medium"
-                className={healthData?.channels.rpm.health >= 0.9 ? 'bg-success-soft text-success' :
-                           healthData?.channels.rpm.health >= 0.7 ? 'bg-warning-soft text-warning' :
-                           'bg-danger-soft text-danger'}>
-            {healthData?.channels.rpm.health >= 0.9 ? 'Normal' :
-             healthData?.channels.rpm.health >= 0.7 ? 'Caution' : 'Alert'}
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${(healthData?.channels?.rpm?.health || 0) >= 0.9 ? 'bg-success-soft text-success' :
+                           (healthData?.channels?.rpm?.health || 0) >= 0.7 ? 'bg-warning-soft text-warning' :
+                           'bg-danger-soft text-danger'}`}>
+            {(healthData?.channels?.rpm?.health || 0) >= 0.9 ? 'Normal' :
+             (healthData?.channels?.rpm?.health || 0) >= 0.7 ? 'Caution' : 'Alert'}
           </span>
         </h2>
         <div className="grid grid-cols-2 gap-4">
@@ -147,10 +155,10 @@ const LiveHealthView: React.FC = () => {
           <div>
             <p className="text-sm text-muted">Health</p>
             <div className="w-full bg-border-subtle rounded-full h-2.5">
-              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels.rpm.health || 0)}`}
-                   style={{ width: `${(healthData?.channels.rpm.health || 0) * 100}%` }}></div>
+              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels?.rpm?.health || 0)}`}
+                   style={{ width: `${(healthData?.channels?.rpm?.health || 0) * 100}%` }}></div>
             </div>
-            <p className="text-xs text-muted mt-1">{getHealthLabel(healthData?.channels.rpm.health || 0)}</p>
+            <p className="text-xs text-muted mt-1">{getHealthLabel(healthData?.channels?.rpm?.health || 0)}</p>
           </div>
         </div>
       </div>
@@ -174,8 +182,8 @@ const LiveHealthView: React.FC = () => {
                     <span className="text-sm">{cyl.label}</span>
                     <div className="flex-1 mx-3">
                       <div className="w-full bg-border-subtle rounded-full h-2">
-                        <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels[`cht_${cyl.index}`].health || 0)}`}
-                             style={{ width: `${(healthData?.channels[`cht_${cyl.index}`].health || 0) * 100}%` }}></div>
+                        <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData ? getCylinderHealth(healthData.channels, 'cht', cyl.index) : 0)}`}
+                             style={{ width: `${(healthData ? getCylinderHealth(healthData.channels, 'cht', cyl.index) : 0) * 100}%` }}></div>
                       </div>
                     </div>
                     <span className="text-xs font-mono">{sensorData?.cht[cyl.index - 1].toFixed(1)}°C</span>
@@ -199,8 +207,8 @@ const LiveHealthView: React.FC = () => {
                     <span className="text-sm">{cyl.label}</span>
                     <div className="flex-1 mx-3">
                       <div className="w-full bg-border-subtle rounded-full h-2">
-                        <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels[`egt_${cyl.index}`].health || 0)}`}
-                             style={{ width: `${(healthData?.channels[`egt_${cyl.index}`].health || 0) * 100}%` }}></div>
+                        <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData ? getCylinderHealth(healthData.channels, 'egt', cyl.index) : 0)}`}
+                             style={{ width: `${(healthData ? getCylinderHealth(healthData.channels, 'egt', cyl.index) : 0) * 100}%` }}></div>
                       </div>
                     </div>
                     <span className="text-xs font-mono">{sensorData?.egt[cyl.index - 1].toFixed(1)}°C</span>
@@ -215,7 +223,7 @@ const LiveHealthView: React.FC = () => {
       <div className="bg-surface border border-border-subtle rounded-lg p-4 shadow-sm">
         <h2 className="text-lg font-semibold mb-4 flex items-center justify-between">
           System Monitoring
-          <span className="text-xs text-muted">Last updated: {new Date(sensorData?.t * 1000 || Date.now()).toLocaleTimeString()}</span>
+          <span className="text-xs text-muted">Last updated: {new Date((sensorData?.t || 0) * 1000).toLocaleTimeString()}</span>
         </h2>
         <div className="grid grid-cols-3 gap-4">
           {/* Fluids & Pressure */}
@@ -225,8 +233,8 @@ const LiveHealthView: React.FC = () => {
               <span className="text-xs font-mono">{sensorData?.oil_pressure?.toFixed(1)} psi</span>
             </div>
             <div className="w-full bg-border-subtle rounded-full h-2">
-              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels.oil_pressure.health || 0)}`}
-                   style={{ width: `${(healthData?.channels.oil_pressure.health || 0) * 100}%` }}></div>
+              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels?.oil_pressure?.health || 0)}`}
+                   style={{ width: `${(healthData?.channels?.oil_pressure?.health || 0) * 100}%` }}></div>
             </div>
 
             <div className="flex items-center justify-between">
@@ -234,8 +242,8 @@ const LiveHealthView: React.FC = () => {
               <span className="text-xs font-mono">{sensorData?.oil_temp?.toFixed(1)}°C</span>
             </div>
             <div className="w-full bg-border-subtle rounded-full h-2">
-              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels.oil_temp.health || 0)}`}
-                   style={{ width: `${(healthData?.channels.oil_temp.health || 0) * 100}%` }}></div>
+              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels?.oil_temp?.health || 0)}`}
+                   style={{ width: `${(healthData?.channels?.oil_temp?.health || 0) * 100}%` }}></div>
             </div>
 
             <div className="flex items-center justify-between">
@@ -243,8 +251,8 @@ const LiveHealthView: React.FC = () => {
               <span className="text-xs font-mono">{sensorData?.fuel_flow?.toFixed(1)} GPH</span>
             </div>
             <div className="w-full bg-border-subtle rounded-full h-2">
-              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels.fuel_flow.health || 0)}`}
-                   style={{ width: `${(healthData?.channels.fuel_flow.health || 0) * 100}%` }}></div>
+              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels?.fuel_flow?.health || 0)}`}
+                   style={{ width: `${(healthData?.channels?.fuel_flow?.health || 0) * 100}%` }}></div>
             </div>
           </div>
 
@@ -255,8 +263,8 @@ const LiveHealthView: React.FC = () => {
               <span className="text-xs font-mono">{sensorData?.battery_voltage?.toFixed(2)} V</span>
             </div>
             <div className="w-full bg-border-subtle rounded-full h-2">
-              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels.battery_voltage.health || 0)}`}
-                   style={{ width: `${(healthData?.channels.battery_voltage.health || 0) * 100}%` }}></div>
+              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels?.battery_voltage?.health || 0)}`}
+                   style={{ width: `${(healthData?.channels?.battery_voltage?.health || 0) * 100}%` }}></div>
             </div>
 
             <div className="flex items-center justify-between">
@@ -264,8 +272,8 @@ const LiveHealthView: React.FC = () => {
               <span className="text-xs font-mono">{sensorData?.vibration_amplitude?.toFixed(3)} in/s</span>
             </div>
             <div className="w-full bg-border-subtle rounded-full h-2">
-              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels.vibration_amplitude.health || 0)}`}
-                   style={{ width: `${(healthData?.channels.vibration_amplitude.health || 0) * 100}%` }}></div>
+              <div className={`h-full rounded-full transition-all duration-300 ${getHealthColor(healthData?.channels?.vibration_amplitude?.health || 0)}`}
+                   style={{ width: `${(healthData?.channels?.vibration_amplitude?.health || 0) * 100}%` }}></div>
             </div>
 
             <div className="flex items-center justify-between">
