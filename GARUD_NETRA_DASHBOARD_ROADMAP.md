@@ -79,27 +79,27 @@ This roadmap outlines the implementation plan for the Garud Netra dashboard base
    - 210 flights from Phase 1 (50 healthy + 20 each of 8 fault types)
    - 20+ degradation trajectories from Phase 5
 
-## Phase 5: Mission What-If Panel (Stubbed)
+## Phase 5: Mission What-If Panel (Stubbed) [Completed]
 **Objective:** Create the mission simulator panel interface with mocked functionality.
 
 ### Subtasks:
-1. Design panel layout for hypothetical conditions input:
+1. [x] Design panel layout for hypothetical conditions input:
    - Altitude input (meters)
    - Ambient temperature input (°C)
    - Throttle profile selection (aggressive/normal/conservative/etc.)
-2. Implement mock backend communication:
+2. [x] Implement mock backend communication:
    - Accept request shape: { "altitude_m": number, "ambient_temp_c": number, "throttle_profile": string }
    - Return mock response shape: { "predicted_rul_cycles": number, "health_trajectory": array }
    - Generate reasonable mock values based on inputs
-3. Create visualization of what-if results:
+3. [x] Create visualization of what-if results:
    - Show predicted RUL under hypothetical conditions
    - Display modified health trajectory
    - Compare with current RUL prediction
-4. Implement panel as disabled/coming-soon state OR fully functional mock:
+4. [x] Implement panel as disabled/coming-soon state OR fully functional mock:
    - Clearly indicate this is Phase 7 functionality (not yet built)
    - Allow interaction and layout testing
    - Ensure easy replacement when real backend is available
-5. Add explanatory text about what-if capabilities
+5. [x] Add explanatory text about what-if capabilities
 
 ## Phase 6: Polish & Integration
 **Objective:** Refine the dashboard, ensure consistency, and prepare for backend integration.
